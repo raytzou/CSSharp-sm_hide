@@ -39,14 +39,7 @@ namespace HidePlayer
             var playerSlot = player.Slot;
 
             // here we don't set visibility, but only maintain the table for player's visibility
-            if (_isVisible[playerSlot])
-            {
-                _isVisible[playerSlot] = false;
-            }
-            else
-            {
-                _isVisible[playerSlot] = true;
-            }
+            _isVisible[playerSlot] = !_isVisible[playerSlot];
         }
 
         private void OnCheckTransmit(CCheckTransmitInfoList infoList)
