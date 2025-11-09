@@ -98,6 +98,10 @@ This plugin currently does not require any configuration files. All settings are
   - Added per-player visibility control
   - Refactored code for better maintainability
 
+## To Do
+- Bullets can pass through hidden players
+- Control player transparency through ARGB instead of blocking Transmit which makes hidden players completely disappear
+
 ## Support
 
 For support, bug reports, or feature requests, please open an issue on the project repository.
