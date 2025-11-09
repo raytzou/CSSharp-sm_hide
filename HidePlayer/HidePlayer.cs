@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
-using System.Drawing;
 
 namespace HidePlayer
 {
@@ -22,6 +21,7 @@ namespace HidePlayer
         public override void Load(bool hotReload)
         {
             RegisterListener<Listeners.OnMapStart>(OnMapStart);
+            RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
         }
 
         private void OnMapStart(string mapName)
@@ -36,41 +36,44 @@ namespace HidePlayer
         {
             if (player is null || !player.IsValid || player.PlayerPawn.Value is null) return;
 
-            var teamNum = player.PlayerPawn.Value.TeamNum;
-            var teammates = Utilities.GetPlayers()
-                .Where(p => p is not null
-                    && p.IsValid
-                    && p.PawnIsAlive
-                    && p.PlayerPawn.Value is not null
-                    && p.PlayerPawn.Value.TeamNum == teamNum
-                    && p != player)
-                .ToList();
             var playerSlot = player.Slot;
 
+            // here we don't set visibility, but only maintain the table for player's visibility
             if (_isVisible[playerSlot])
             {
                 _isVisible[playerSlot] = false;
-
-                var invisible = Color.FromArgb(76, 255, 255, 255);
-                foreach (var teammate in teammates)
-                {
-                    if (teammate is null || !teammate.IsValid || teammate.PlayerPawn.Value is null) continue;
-
-                    teammate.PlayerPawn.Value.Render = invisible;
-                    Utilities.SetStateChanged(teammate.PlayerPawn.Value, "CBaseModelEntity", "m_clrRender");
-                }
             }
             else
             {
                 _isVisible[playerSlot] = true;
+            }
+        }
 
-                var visible = Color.FromArgb(255, 255, 255, 255);
-                foreach (var teammate in teammates)
+        private void OnCheckTransmit(CCheckTransmitInfoList infoList)
+        {
+            foreach ((var info, var player) in infoList)
+            {
+                if (player is null || !player.IsValid || player.PlayerPawn.Value is null) continue;
+
+                var teamNum = player.PlayerPawn.Value.TeamNum;
+                var teammates = Utilities.GetPlayers()
+                    .Where(p => p is not null
+                        && p.IsValid
+                        && p.PawnIsAlive
+                        && p.PlayerPawn.Value is not null
+                        && p.PlayerPawn.Value.TeamNum == teamNum
+                        && p != player)
+                    .ToList();
+                var playerSlot = player.Slot;
+
+                if (!_isVisible[playerSlot])
                 {
-                    if (teammate is null || !teammate.IsValid || teammate.PlayerPawn.Value is null) continue;
+                    foreach (var teammate in teammates)
+                    {
+                        if (teammate is null || !teammate.IsValid || teammate.PlayerPawn.Value is null) continue;
 
-                    teammate.PlayerPawn.Value.Render = visible;
-                    Utilities.SetStateChanged(teammate.PlayerPawn.Value, "CBaseModelEntity", "m_clrRender");
+                        info.TransmitEntities.Remove(teammate.PlayerPawn.Value); // remove player while transmiting => invisible
+                    }
                 }
             }
         }
