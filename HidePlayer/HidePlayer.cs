@@ -48,19 +48,18 @@ namespace HidePlayer
             {
                 if (player is null || !player.IsValid || player.PlayerPawn.Value is null) continue;
 
-                var teamNum = player.PlayerPawn.Value.TeamNum;
-                var teammates = Utilities.GetPlayers()
-                    .Where(p => p is not null
-                        && p.IsValid
-                        && p.PawnIsAlive
-                        && p.PlayerPawn.Value is not null
-                        && p.PlayerPawn.Value.TeamNum == teamNum
-                        && p != player)
-                    .ToList();
-                var playerSlot = player.Slot;
-
-                if (!_isVisible[playerSlot])
+                if (!_isVisible[player.Slot])
                 {
+                    var teamNum = player.PlayerPawn.Value.TeamNum;
+                    var teammates = Utilities.GetPlayers()
+                        .Where(p => p is not null
+                            && p.IsValid
+                            && p.PawnIsAlive
+                            && p.PlayerPawn.Value is not null
+                            && p.PlayerPawn.Value.TeamNum == teamNum
+                            && p != player)
+                        .ToList();
+
                     foreach (var teammate in teammates)
                     {
                         if (teammate is null || !teammate.IsValid || teammate.PlayerPawn.Value is null) continue;
