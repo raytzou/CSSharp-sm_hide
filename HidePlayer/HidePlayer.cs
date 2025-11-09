@@ -34,9 +34,9 @@ namespace HidePlayer
         [ConsoleCommand("css_hide", "Hides player from the same team")]
         public void OnHideCommand(CCSPlayerController? player, CommandInfo info)
         {
-            if (player is null || !player.IsValid || player.PlayerPawn.Value is null) return;
+            if (!IsPlayerValid(player)) return;
 
-            var playerSlot = player.Slot;
+            var playerSlot = player!.Slot;
 
             // here we don't set visibility, but only maintain the table for player's visibility
             _isVisible[playerSlot] = !_isVisible[playerSlot];
@@ -46,28 +46,27 @@ namespace HidePlayer
         {
             foreach ((var info, var player) in infoList)
             {
-                if (player is null || !player.IsValid || player.PlayerPawn.Value is null) continue;
+                if (!IsPlayerValid(player)) continue;
 
-                if (!_isVisible[player.Slot])
+                if (!_isVisible[player!.Slot])
                 {
-                    var teamNum = player.PlayerPawn.Value.TeamNum;
+                    var teamNum = player.PlayerPawn.Value!.TeamNum;
                     var teammates = Utilities.GetPlayers()
-                        .Where(p => p is not null
-                            && p.IsValid
-                            && p.PawnIsAlive
-                            && p.PlayerPawn.Value is not null
-                            && p.PlayerPawn.Value.TeamNum == teamNum
+                        .Where(p => IsPlayerValid(p)
+                            && p.PlayerPawn.Value!.TeamNum == teamNum
                             && p != player)
                         .ToList();
 
                     foreach (var teammate in teammates)
                     {
-                        if (teammate is null || !teammate.IsValid || teammate.PlayerPawn.Value is null) continue;
+                        if (!IsPlayerValid(teammate)) continue;
 
-                        info.TransmitEntities.Remove(teammate.PlayerPawn.Value); // remove player while transmiting => invisible
+                        info.TransmitEntities.Remove(teammate.PlayerPawn.Value!); // remove player while transmiting => invisible
                     }
                 }
             }
         }
+
+        private static bool IsPlayerValid(CCSPlayerController? player) => player is not null && player.IsValid && player.PlayerPawn.Value is not null;
     }
 }
