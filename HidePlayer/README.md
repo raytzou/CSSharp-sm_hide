@@ -1,4 +1,7 @@
 ﻿# HidePlayer
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=M-UwAzYuawc" target="_blank">
+ <img src="http://img.youtube.com/vi/M-UwAzYuawc/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
+</a>
 
 A CounterStrikeSharp plugin that allows players to individually toggle the visibility of their teammates.
 
